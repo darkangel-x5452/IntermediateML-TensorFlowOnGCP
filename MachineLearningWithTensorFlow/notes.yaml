@@ -1,34 +1,33 @@
 # Initial setup
-sudo apt -y update
-sudo apt -y upgrade
-sudo apt -y install git
-git clone  https://github.com/GoogleCloudPlatform/data-science-on-gcp/
+sudo apt -y update && sudo apt -y upgrade && \
+sudo apt -y install git && \
+git clone  https://github.com/GoogleCloudPlatform/data-science-on-gcp/ && \
 sudo apt-get install -y python-pip python-dev python3-pip python3-dev virtualenv
 # Setup venv
-sudo pip install virtualenv
-virtualenv -p python3 venv
+sudo pip install virtualenv && \
+virtualenv -p python3 venv && \
 source venv/bin/activate
 
 # Setup Tensorflow
 pip install tensorflow==1.15.2
 
 # setup directory
-mkdir -p ~/data/flights
-export PROJECT_ID=$(gcloud info --format='value(config.project)')
+mkdir -p ~/data/flights && \
+export PROJECT_ID=$(gcloud info --format='value(config.project)') && \
 export BUCKET=${PROJECT_ID}
 
 # Create the training data set by extracting about 10000 records from one of the source training data files
 gsutil cp \
   gs://${BUCKET}/flights/chapter8/output/trainFlights-00001*.csv \
-  full.csv
-head -10003 full.csv > ~/data/flights/train.csv
-rm full.csv
+  full.csv && \
+  head -10003 full.csv > ~/data/flights/train.csv && \
+  rm full.csv
 
 # Create the test data set that will be used to evaluate your experimental models by extracting about 10000 records from one of the source test data files:
 gsutil cp \
   gs://${BUCKET}/flights/chapter8/output/testFlights-00001*.csv \
-  full.csv
-head -10003 full.csv > ~/data/flights/test.csv
+  full.csv && \
+head -10003 full.csv > ~/data/flights/test.csv && \
 rm full.csv
 
 # Tensorflow setup
