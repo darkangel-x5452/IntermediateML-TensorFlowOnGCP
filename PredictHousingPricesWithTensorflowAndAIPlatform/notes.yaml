@@ -1,0 +1,9 @@
+gcloud auth list
+gcloud config list project
+
+# Create Storage bucket
+# Launch AI Platform Notebooks
+# Download lab notebook
+git clone https://github.com/GoogleCloudPlatform/training-data-analyst
+# Open and execute the housing prices notebook
+## This can take a while due to the jobs required.
