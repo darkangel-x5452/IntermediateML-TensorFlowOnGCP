@@ -1,0 +1,107 @@
+# Initial setup
+sudo apt -y update
+sudo apt -y upgrade
+sudo apt -y install git
+git clone  https://github.com/GoogleCloudPlatform/data-science-on-gcp/
+sudo apt-get install -y python-pip python-dev python3-pip python3-dev virtualenv
+# Setup venv
+sudo pip install virtualenv
+virtualenv -p python3 venv
+source venv/bin/activate
+
+# Setup Tensorflow
+pip install tensorflow==1.15.2
+
+# setup directory
+mkdir -p ~/data/flights
+export PROJECT_ID=$(gcloud info --format='value(config.project)')
+export BUCKET=${PROJECT_ID}
+
+# Create the training data set by extracting about 10000 records from one of the source training data files
+gsutil cp \
+  gs://${BUCKET}/flights/chapter8/output/trainFlights-00001*.csv \
+  full.csv
+head -10003 full.csv > ~/data/flights/train.csv
+rm full.csv
+
+# Create the test data set that will be used to evaluate your experimental models by extracting about 10000 records from one of the source test data files:
+gsutil cp \
+  gs://${BUCKET}/flights/chapter8/output/testFlights-00001*.csv \
+  full.csv
+head -10003 full.csv > ~/data/flights/test.csv
+rm full.csv
+
+# Tensorflow setup
+mkdir ~/tensorflow
+cd ~/tensorflow/
+mkdir flights
+cd flights
+mkdir trainer
+cd trainer
+
+touch __init__.py
+
+nano -w model.py
+nano -w task.py
+
+# run task
+python task.py --traindata ~/data/flights/train.csv
+# result: Tensor("Mean:0", shape=(), dtype=float32)
+python task.py \
+       --traindata ~/data/flights/train.csv \
+       --output_dir ./trained_model \
+       --evaldata ~/data/flights/test.csv
+# Result: INFO:tensorflow:Saving dict for global step 200: accuracy = 0.89453167, accuracy_baseline = 0.72878134, auc = 0.88293874, auc_precision_recall = 0.946697, average_loss = 0.5809859, global_step = 200, label/mean = 0.72878134, loss = 290.5801, precision = 0.90075845, prediction/mean = 0.7678837, recall = 0.9611797
+pushd ~/data-science-on-gcp/09_cloudml/flights/
+cp PKG-INFO ~/tensorflow/flights
+cp setup.cfg ~/tensorflow/flights
+cp setup.py ~/tensorflow/flights
+popd
+
+# Edit setup.py
+nano -w ~/tensorflow/flights/setup.py
+'tensorflow>=1.7'
+export PYTHONPATH=${PYTHONPATH}:~/tensorflow/flights
+cd ~/tensorflow
+export DATA_DIR=~/data/flights
+python -m trainer.task \
+  --output_dir=./trained_model \
+  --traindata $DATA_DIR/train* --evaldata $DATA_DIR/test*
+
+
+# Now remove the previous model data and execute the trainer task again:
+rm -rf trained_model/
+python -m trainer.task \
+  --output_dir=./trained_model \
+  --traindata $DATA_DIR/train* --evaldata $DATA_DIR/test*
+# Result INFO:tensorflow:Saving dict for global step 200: accuracy = 0.89453167, accuracy_baseline = 0.72878134, auc = 0.88293874, auc_precision_recall = 0.946697, average_loss = 0.5809859, global_step = 200, label/mean = 0.72878134, loss = 290.5801, precision = 0.90075845, prediction/mean = 0.7678837, recall = 0.9611797, rmse = 0.3024143
+
+# Compare the performance again, specifically noting the value of the rmse custom metric with the previous runs.
+rm -rf trained_model/
+python -m trainer.task \
+  --output_dir=./trained_model \
+  --traindata $DATA_DIR/train* --evaldata $DATA_DIR/test*
+#Result: INFO:tensorflow:Saving dict for global step 200: accuracy = 0.93112063, accuracy_baseline = 0.72878134, auc = 0.9574647, auc_precision_recall = 0.98300326, average_loss = 0.30595353, global_step = 200, label/mean = 0.72878134, loss = 153.02266, precision = 0.95542985, prediction/mean = 0.7230981, recall = 0.94979423, rmse = 0.24136068
+
+# Deploy the TensorFlow experimental framework to the Google Cloud ML Engine
+export PROJECT_ID=$(gcloud info --format='value(config.project)')
+export BUCKET=$PROJECT_ID
+export REGION=us-central1
+export OUTPUT_DIR=gs://${BUCKET}/flights/chapter9/output
+export DATA_DIR=gs://${BUCKET}/flights/chapter8/output
+
+export JOBNAME=flights_$(date -u +%y%m%d_%H%M%S)
+cd ~/tensorflow
+
+gcloud ai-platform jobs submit training $JOBNAME \
+  --module-name=trainer.task \
+  --package-path=$(pwd)/flights/trainer \
+  --job-dir=$OUTPUT_DIR \
+  --staging-bucket=gs://$BUCKET \
+  --region=$REGION \
+  --scale-tier=STANDARD_1 \
+  --python-version=3.5 \
+  --runtime-version=1.14 \
+  -- \
+  --output_dir=$OUTPUT_DIR \
+  --traindata $DATA_DIR/train* --evaldata $DATA_DIR/test*

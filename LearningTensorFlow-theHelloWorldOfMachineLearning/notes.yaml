@@ -1,0 +1,33 @@
+python3 --version
+pip3 --version
+virtualenv --version
+
+# gcpstaging82617_student@instance-1:~$ python3 --version
+#Python 3.5.3
+#gcpstaging82617_student@instance-1:~$ pip3 --version
+#-bash: pip3: command not found
+#gcpstaging82617_student@instance-1:~$ virtualenv --version
+#-bash: virtualenv: command not found
+#gcpstaging82617_student@instance-1:~$
+
+sudo apt update
+sudo apt install python3-pip
+sudo pip3 install -U virtualenv  # system-wide install
+pip3 --version
+virtualenv --version
+#gcpstaging82439_student@instance-1:~$ pip3 --version
+  #pip 9.0.1 from /usr/lib/python3/dist-packages (python 3.5)
+  #gcpstaging82439_student@instance-1:~$ virtualenv --version
+  #16.7.2
+
+virtualenv --system-site-packages -p python3 ./venv
+source ./venv/bin/activate  # sh, bash, ksh, or zsh
+pip install --upgrade pip
+pip list  # show packages installed within the virtual environment
+
+pip install --upgrade tensorflow
+python -c "import warnings;warnings.simplefilter(action='ignore', category=FutureWarning);import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+# result: Tensor("Sum:0", shape=(), dtype=float32)
+
+
+python model.py
