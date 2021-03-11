@@ -1,8 +1,7 @@
 import argparse
-import model
+# import model
 # import trainer.model as model
 import tensorflow as tf
-# import model
 import trainer.model as model
 
 if __name__ == '__main__':
@@ -40,10 +39,10 @@ if __name__ == '__main__':
 
 
   # Call read_dataset from model.py
-  feats, label = model.read_dataset(traindata)
-  # Find the average of all the labels that were read in
-  avg = tf.reduce_mean(label)
-  print(avg)
+  # feats, label = model.read_dataset(traindata)
+  # # Find the average of all the labels that were read in
+  # avg = tf.reduce_mean(label)
+  # print(avg)
   # Remove above "Call read_dataset from model.py" later on.
-  # tf.logging.set_verbosity(tf.logging.INFO)
-  # model.run_experiment(traindata,evaldata,output_dir)
+  tf.logging.set_verbosity(tf.logging.INFO)
+  model.run_experiment(traindata,evaldata,output_dir)

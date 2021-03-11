@@ -57,8 +57,8 @@ def get_features_raw():
   }
   return real, sparse
 
-# def get_features_ch7():
-def get_features():
+def get_features_ch7():
+    # def get_features():
     # Using three basic inputs
     real = {
         colname: tflayers.real_valued_column(colname) \
@@ -80,11 +80,11 @@ def get_features_ch8():
   return real, sparse
 
 
-# def get_features():
-#   # Select the active get_feature function
-#   # return get_features_raw()
-#   # return get_features_ch7()
-#   return get_features_ch8()
+def get_features():
+  # Select the active get_feature function
+  return get_features_raw()
+  # return get_features_ch7()
+  # return get_features_ch8()
 
 def my_rmse(labels, predictions):
   predicted_classes = predictions['probabilities'][:, 1]
