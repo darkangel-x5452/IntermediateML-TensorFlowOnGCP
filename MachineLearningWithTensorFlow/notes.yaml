@@ -40,7 +40,7 @@ cd trainer
 
 touch __init__.py
 
-nano -w model.py
+nano -w model-1.py
 nano -w task.py
 
 # run task

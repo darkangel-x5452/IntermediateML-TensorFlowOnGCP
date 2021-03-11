@@ -30,4 +30,4 @@ python -c "import warnings;warnings.simplefilter(action='ignore', category=Futur
 # result: Tensor("Sum:0", shape=(), dtype=float32)
 
 
-python model.py
+python model-1.py

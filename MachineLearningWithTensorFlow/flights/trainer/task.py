@@ -38,11 +38,11 @@ if __name__ == '__main__':
   output_dir = arguments.pop('output_dir')
 
 
-  # Call read_dataset from model.py
+  # Call read_dataset from model-1.py
   # feats, label = model.read_dataset(traindata)
   # # Find the average of all the labels that were read in
   # avg = tf.reduce_mean(label)
   # print(avg)
-  # Remove above "Call read_dataset from model.py" later on.
+  # Remove above "Call read_dataset from model-1.py" later on.
   tf.logging.set_verbosity(tf.logging.INFO)
   model.run_experiment(traindata,evaldata,output_dir)
